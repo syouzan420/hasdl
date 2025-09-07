@@ -189,12 +189,12 @@ textsDraw re fonts itex dfsz (TXD imkSt ifmSt icrSt wmdSt szsSt tpsSt)
                 T.replace "\r" "　" $
                 T.replace "\n" "　" tx
 
-      CP _ _ _ lPos = last pList
+      CP _ _ lPos = last pList
 --      (txPListHalf,txPListWhole) =
 --           partition (\(_,((b,_),_)) -> b) (zip (T.unpack rpText2) pList)
 --      (tx', pListWhole) = first T.pack $ unzip txPListWhole
       (tx',pListWhole) = if fnum==0 then first T.pack $ unzip $
-              filter (\(_,CP b _ _ _) -> not b) (zip (T.unpack rpText2) pList)
+              filter (\(_,CP b _ _) -> not b) (zip (T.unpack rpText2) pList)
                                 else (tx, pList)
       fText = case fnum of 0 -> tx'; 1 -> tx; 2 -> rpText; 3 -> rpText2; _ -> tx;
       fnum' = if fnum > 3 then 1 else fnum
@@ -202,14 +202,14 @@ textsDraw re fonts itex dfsz (TXD imkSt ifmSt icrSt wmdSt szsSt tpsSt)
   when iShowPic $ do 
         let iname = T.drop 4 tx'
         let ind = getPicIndex iname
-        let (CP _ _ _ ipos) = head pList
+        let (CP _ _ ipos) = head pList
         when (ind>=0) $ 
           imageDraw re itex szsSt
                [Img (ipos+nscr) (szsSt!!ind) 0 (T.unpack iname)]   
   when (tx'/=T.empty && not iShowPic) $ do
         fontS <- blended (fonts!!fnum') fcoAt fText 
         fontT <- createTextureFromSurface re fontS
-        foldM_ (\ ps (CP b r _ pd) -> do
+        foldM_ (\ ps (CP b r pd) -> do
           let sz = if b then ofs `div` 2 else ofs
           copyEx re fontT 
             (Just (Rectangle (P ps) (V2 sz ofs)))
@@ -224,7 +224,7 @@ textsDraw re fonts itex dfsz (TXD imkSt ifmSt icrSt wmdSt szsSt tpsSt)
         (sz,szh) <- size (fonts!!4) "a"
         let (fszX,fszY) = (fromIntegral sz, fromIntegral szh)
         fontT2 <- createTextureFromSurface re fontS2
-        foldM_ (\ ps (CP b r _ pd) -> do
+        foldM_ (\ ps (CP b r pd) -> do
  --         let sz = if b then ofs `div` 2 else ofs
           when b $ do
             copyEx re fontT2 

@@ -35,10 +35,14 @@ addElem :: Elm a -> Forest a -> Forest a
 addElem (El mn _ _) [] = [Node mn []]
 addElem (El mn l r) fo
   | lng >= l && l /= 0
-          = let (h,(Node s sf):t) = splitAt (lng - abs l) fo
-                newNode = if l==1 || l==(-1) || null sf then Node s (t ++ addElem (El mn l r) sf)
-                                             else let (Node s' _) = head sf
-                                                   in Node s (Node s' (tail sf):t ++ [Node mn []])
+--          = let (h,(Node s sf):t) = splitAt (lng - abs l) fo
+          = let (h,ns) = splitAt (lng - abs l) fo
+                (Node s sf,t) = case ns of [] -> (Node mn [],[])
+                                           ((Node s' sf'):t') -> (Node s' sf',t')
+                newNode = if l==1 || l==(-1) || null sf 
+                            then Node s (t ++ addElem (El mn l r) sf)
+                            else let (Node s' _) = head sf
+                                  in Node s (Node s' (tail sf):t ++ [Node mn []])
                 --newNode = Node s (t ++ addElem (El mn l r) sf)
              in h ++ [newNode]
   | otherwise 

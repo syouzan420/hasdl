@@ -32,8 +32,8 @@ type FilePos = Int
 type PointSize = Int
 type Color = V4 Word8
 type Cnum = Int         -- color number
-data ChPos = CP !Bool !Bool !Bool !Pos
-       -- IsChar hankaku?, IsChar Tate rotate?, IsChar Marked?, CharPosition 
+data ChPos = CP !Bool !Bool !Pos
+       -- IsChar hankaku?, IsChar Tate rotate?, CharPosition 
 data TextData = TD !Bool !Text !Attr ![ChPos] -- Bool:IsCursorPresent?
 data ForText =
   FT !Index !IsMarker !IsFormat !WMode ![Size] !FilePos !TextPos !Size !Mgn !Attr

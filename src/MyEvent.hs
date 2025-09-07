@@ -26,7 +26,7 @@ inputEvent _ = do
   case evInput of
     Nothing -> return (1,Just (NON,False))
 -- md: keyModifier ('a'-alt, 'c'-control, 's'-shift, ' '-nothing)
-    Just (InpRes kc md it (mps,mps0) (isc,icl) ised _) -> do
+    Just (InpRes kc md it (mps,_) (isc,_) ised _) -> do
       st <- S.get
       let (actSt,cdnSt) = (act st, cdn st) 
           (texSt,etxSt,dtsSt,tpsSt,dfnSt,digSt,comSt,wszSt,mgnSt,atrSt,emdSt

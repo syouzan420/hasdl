@@ -24,7 +24,8 @@ exeEvent etx = do
 exeOneEvent :: (MonadIO m) => T.Text -> StateW m 
 exeOneEvent evt = do
   let en_ags = T.split (=='_') evt
-  let (en:ags) = if null en_ags then ("null":[]) else en_ags
+--  let (en:ags) = if null en_ags then ("null":[]) else en_ags
+  let (en,ags) = case en_ags of [] -> ("null",[]); (e:as) -> (e,as)
   unless (null ags) $ case en of
     "md" -> changeMode ((head . T.unpack . head) ags) 
     "mv" -> moveDialog (head ags)

@@ -51,7 +51,7 @@ makeTexts :: ForText -> Text -> Text -> [TextData]
 makeTexts (FT ind imkSt ifmSt wmdSt szsSt fpsSt tpsSt wszSt mgnSt atrSt) etxSt texSt
  = let texSt' = if ifmSt then replaceText texSt else texSt 
    in case uncons texSt' of
-    Nothing -> [TD True etxSt atrSt (makePList False wmdSt wszSt mgnSt atrSt etxSt) 
+    Nothing -> [TD True etxSt atrSt (makePList wmdSt wszSt mgnSt atrSt etxSt) 
                 | texSt=="" && tpsSt==0] 
     Just (ch,tailTx) ->  
       let iMkr = tpsSt > ind 
@@ -76,9 +76,9 @@ makeTexts (FT ind imkSt ifmSt wmdSt szsSt fpsSt tpsSt wszSt mgnSt atrSt) etxSt t
                             then (iptx<>etxSt,tptx<>pxs2) else (ptx2,pxs2)
           (scrAt,fszAt) = (scr natr,fsz natr)
           fs = fromIntegral fszAt
-          pList = makePList iMkr wmdSt wszSt mgnSt natr tx
+          pList = makePList wmdSt wszSt mgnSt natr tx
           indInc = lnTex - T.length xs 
-          CP _ _ _ lPos@(V2 lpx lpy) = last pList
+          CP _ _ lPos@(V2 lpx lpy) = last pList
           (V2 sx sy) = scrAt
           (V2 ww wh) = wszSt
           (V4 mr mt ml mb) = mgnSt
@@ -93,17 +93,17 @@ makeTexts (FT ind imkSt ifmSt wmdSt szsSt fpsSt tpsSt wszSt mgnSt atrSt) etxSt t
               makeTexts (FT (ind+indInc) imkSt ifmSt wmdSt szsSt fpsSt
                              tpsSt wszSt mgnSt natr{gps=lPos,scr=nscr}) etxSt xs 
 
-makePList :: IsMarker -> WMode -> Size -> Mgn -> Attr -> Text -> [ChPos]
-makePList im wm ws mg at tx = 
+makePList :: WMode -> Size -> Mgn -> Attr -> Text -> [ChPos]
+makePList wm ws mg at tx = 
   let (ps@(V2 ox oy),tw,nw) = (gps at,ltw at,lnw at)
    in case uncons tx of
-    Nothing -> [CP False False False ps]
+    Nothing -> [CP False False ps]
     Just (ch,xs) -> let ((ihf,irt),(npos,_)) = nextPos ch tw nw wm ps ws mg (0,0) 
                         qtw = tw `div` 4
                         ihft = wm==T && ihf
-                     in CP ihf irt im (V2 (if ihft then ox+qtw else ox)
+                     in CP ihf irt (V2 (if ihft then ox+qtw else ox)
                                           (if ihft then oy-qtw else oy))
-                        :makePList im wm ws mg at{gps=npos} xs
+                        :makePList wm ws mg at{gps=npos} xs
 
 replaceText ::Text -> Text
 replaceText tx = T.replace "\n#" "\n;hi " $ 

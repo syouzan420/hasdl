@@ -1,11 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Mana.Mana (evalCode,makeManas,addSpaces,taiyouMn,makeStrings, Mn(..), Ta, Yo(..),Definition,Df(..),Dtype(..),DefList,setDf,preDef,userDef)  where
+module Mana.Mana (evalCode,makeManas,addSpaces,taiyouMn,makeStrings
+                 ,setDf,preDef,userDef
+                 ,Ta,DefList,Definition
+                 ,Mn(..),Yo(..),Df(..),Dtype(..)
+                 ) where
 
 import qualified Data.Text as T
 import Data.Char (isDigit)
 import Data.Tree (Tree(..), Forest)
 import Data.Maybe (fromMaybe, isJust)
-import Mana.MyTree (Elm(..),L,R(..),numR,mtR,ltR,addElem,showF)
+import Mana.MyTree (Elm(..),L,R(..),numR,mtR,ltR,addElem)
 import General (getIndex)
   
 type Ta = String 
@@ -18,43 +22,41 @@ type DefList = [(Dtype,[Definition])]
 data Df = Df Dtype String [Yo] String deriving (Eq, Show)
 
 instance Show Mn where
-  show (Mn t y) = t 
+  show (Mn t _) = t 
 --     ++ "-" ++
 --     case y of Kaz -> "K"; Moz -> "M"; Io -> "I"; Def -> "D"; Spe -> "S"; Var -> "V"
 
 evalCode :: DefList -> T.Text -> Mn
 evalCode dfl = makeMana dfl . fst . makeManas (concatMap snd dfl)
 
-showCode :: T.Text -> IO ()
-showCode = showFLR . makeManas (concatMap snd preDef)
+--showCode :: T.Text -> IO ()
+--showCode = showFLR . makeManas (concatMap snd preDef)
 
-codeToString :: T.Text -> String
-codeToString = manasToString . fst . makeManas (concatMap snd preDef)
---codeToString = manasToString . (: []) . last . fst . makeManas (concatMap snd preDef)
---codeToString = manasToString . init . fst . makeManas (concatMap snd preDef)
+--codeToString :: T.Text -> String
+--codeToString = manasToString . fst . makeManas (concatMap snd preDef)
 
-codeToYos :: T.Text -> [Yo]
-codeToYos = manasToYos . fst .makeManas (concatMap snd preDef)
+--codeToYos :: T.Text -> [Yo]
+--codeToYos = manasToYos . fst .makeManas (concatMap snd preDef)
 
 manasToString :: Forest Mn -> String
 manasToString [] = []
 manasToString (Node (Mn t _) sf:xs) = t ++","++ manasToString sf ++ manasToString xs 
 
-manasToYos :: Forest Mn -> [Yo]
-manasToYos [] = []
-manasToYos (Node (Mn _ y) sf:xs) = y : manasToYos sf ++ manasToYos xs
+--manasToYos :: Forest Mn -> [Yo]
+--manasToYos [] = []
+--manasToYos (Node (Mn _ y) sf:xs) = y : manasToYos sf ++ manasToYos xs
 
 setDf :: DefList -> String -> Df
 setDf dfl name = fromMaybe (Df Non "" [] "") (searchFromDef name dfl)
 
-howManyElem :: Eq a => a -> [a] -> Int
-howManyElem e = foldl (\acc x -> if x==e then acc+1 else acc) 0 
+--howManyElem :: Eq a => a -> [a] -> Int
+--howManyElem e = foldl (\acc x -> if x==e then acc+1 else acc) 0 
 
 getYo :: [Definition] -> String -> Yo
 getYo def x | isDef def x = Def | isMoz x = Moz | isKaz x = Kaz | isSpe x = Spe | otherwise = Var
 
-showFLR :: (Forest Mn,LR) -> IO () 
-showFLR (fr,lr) = putStrLn (showF fr ++ "\n" ++ show lr)
+--showFLR :: (Forest Mn,LR) -> IO () 
+--showFLR (fr,lr) = putStrLn (showF fr ++ "\n" ++ show lr)
 
 getTa :: Tree Mn -> Ta
 getTa (Node (Mn t _) _) = t
@@ -126,7 +128,8 @@ makeMana dfl (Node mn0@(Mn t0 y0) [] : Node mn1@(Mn t1 y1) [] : xs)
   | isJust (defForest dfl [Node mn1 []]) =
     makeMana dfl (Node mn0 [] : Node (evalDef dfl [Node mn1 []]) [] : xs)
   | y0==y1 = case y0 of
-      Kaz -> makeMana dfl $ Node (Mn (show (read t0 + read t1)) Kaz) []:xs
+      Kaz -> makeMana dfl $ 
+              Node (Mn (show ((read t0 + read t1)::Integer)) Kaz) []:xs
       Moz -> makeMana dfl $ Node (Mn (init t0 ++ tail t1) Moz) [] : xs
       Io  -> makeMana dfl $ Node (Mn (t0 ++"\n"++ t1) Io) [] : xs
       _ -> makeMana dfl xs 
@@ -302,7 +305,7 @@ preFunc :: [String] -> String
 preFunc [] = "" 
 preFunc ws = 
   case name of
-    "pro" -> show $ product args 
+    "pro" -> show $ (product args::Integer)
     _     -> name 
   where name = last ws
         args = map read (init ws)
